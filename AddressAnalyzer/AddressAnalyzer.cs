@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace AddressAnalyzer
 {
     class AddressAnalyzer
-    {   
+    {
         private readonly DcrmConnector _dcrmConnector = new DcrmConnector();
         private readonly Stopwatch _swGlobal = new Stopwatch();
         private StreamWriter _streamWriter = null;
@@ -17,7 +17,7 @@ namespace AddressAnalyzer
         private static string OUTPUT_CSV_FILENAME = "ImpactedPartiesExport.csv";
         private static string SOURCE_PARTY = "Party";
         private static string SOURCE_ROLE = "Role";
-        
+
         public AddressAnalyzer()
         {
             _dcrmConnector = new DcrmConnector();
@@ -73,7 +73,7 @@ namespace AddressAnalyzer
                 var partyContractDict = _partyContactSrc.GetDictionary();
 
                 // getting a reference to the role based contact dictionnary
-                var roleContractDict = _roleContactSrc.GetDictionary();               
+                var roleContractDict = _roleContactSrc.GetDictionary();
 
                 // crossmatching both dictionnaries to find any address mismatch
                 foreach (var partyContactEntry in partyContractDict.Values)
@@ -103,7 +103,7 @@ namespace AddressAnalyzer
             }
 
             return impactedEntitiesCpt;
-        }      
+        }
 
         public async Task<uint> RetrieveImpactedAccounts()
         {
@@ -111,7 +111,7 @@ namespace AddressAnalyzer
             var getContactCountTasks = new List<Task<uint>>();
 
             _partyContactSrc = new ContactPartySource();
-            _roleContactSrc = new ContactRoleSource();            
+            _roleContactSrc = new ContactRoleSource();
 
             _swGlobal.Start();
             _dcrmConnector.Connect();
@@ -121,7 +121,7 @@ namespace AddressAnalyzer
 
             // Getting the role attached contacts task
             var contactsFromRoleCpt = _roleContactSrc.GetContactsCountAsync(_roleContactSrc, _dcrmConnector.SrvContext, SOURCE_ROLE);
-            
+
             // Adding the task to task's list
             getContactCountTasks.Add(contactsFromPartyCpt);
             getContactCountTasks.Add(contactsFromRoleCpt);

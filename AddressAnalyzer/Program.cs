@@ -17,7 +17,7 @@ namespace AddressAnalyzer
             var addressAnalyzer = new AddressAnalyzer();
 
             try
-            {               
+            {
                 var cptDicrepencies = await addressAnalyzer.RetrieveImpactedAccounts();
 
                 if (cptDicrepencies > 0)
@@ -68,7 +68,7 @@ namespace AddressAnalyzer
             }
             finally
             {
-                addressAnalyzer.Terminate();                
+                addressAnalyzer.Terminate();
             }
         }
     }

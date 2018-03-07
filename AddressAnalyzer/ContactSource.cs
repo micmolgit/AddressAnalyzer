@@ -34,7 +34,7 @@ namespace AddressAnalyzer
                 try
                 {
                     var ContactsQuery = contactSrc.GetContactsQuery(ctx);
-                    
+
                     sw.Start();
                     Console.WriteLine($"Executing data collection query : Contacts from type 'Courrier' related to {sourceName} ...");
                     foreach (var contact in ContactsQuery) { cptContact++; };
