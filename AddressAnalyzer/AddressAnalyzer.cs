@@ -7,17 +7,17 @@ using System.Collections.Generic;
 namespace AddressAnalyzer
 {
     class AddressAnalyzer
-    {   
+    {
         private readonly DcrmConnector _dcrmConnector = new DcrmConnector();
         private readonly Stopwatch _swGlobal = new Stopwatch();
         private StreamWriter _streamWriter = null;
         private ContactPartySource _partyContactSrc = new ContactPartySource();
         private ContactRoleSource _roleContactSrc = new ContactRoleSource();
 
-        private static string OUTPUT_CSV_FILENAME = "ImpactedPartiesExport.csv";
+        private static string OUTPUT_CSV_FILENAME = "ImpactedAccountsExport.csv";
         private static string SOURCE_PARTY = "Party";
         private static string SOURCE_ROLE = "Role";
-        
+
         public AddressAnalyzer()
         {
             _dcrmConnector = new DcrmConnector();
@@ -40,7 +40,7 @@ namespace AddressAnalyzer
             {
                 if (_streamWriter == null)
                 {
-                    Console.WriteLine("Exporting the impacted parties to : {0} ...", OUTPUT_CSV_FILENAME);
+                    Console.WriteLine($"Exporting the impacted parties to : {OUTPUT_CSV_FILENAME} ...");
                     _streamWriter = new StreamWriter(OUTPUT_CSV_FILENAME);
                 }
                 await _streamWriter.WriteLineAsync(outputText);
@@ -66,14 +66,17 @@ namespace AddressAnalyzer
                 sw.Start();
 
                 // Creating Export file with CVS Header [GUID | MODIFIED ON]
-                var outputText = String.Format("{0};{1}", "Party GUID", "ModifiedOn (from contact)");
+                var colomn1 = "Account GUID";
+                var colomn2 = "ModifiedOn(from contact)";
+
+                var outputText = String.Format($"{colomn1};{colomn2}");
                 await WriteCvsLineAsync(outputText);
 
                 // getting a reference to the account based contact dictionnary
                 var partyContractDict = _partyContactSrc.GetDictionary();
 
                 // getting a reference to the role based contact dictionnary
-                var roleContractDict = _roleContactSrc.GetDictionary();               
+                var roleContractDict = _roleContactSrc.GetDictionary();
 
                 // crossmatching both dictionnaries to find any address mismatch
                 foreach (var partyContactEntry in partyContractDict.Values)
@@ -86,14 +89,14 @@ namespace AddressAnalyzer
                         if (roleContactEntry != null && roleContactEntry.Address != partyContactEntry.Address)
                         {
                             impactedEntitiesCpt++;
-                            outputText = String.Format("{0};{1}", partyContactEntry.AccountId, partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy"));
+                            outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")}");
                             await WriteCvsLineAsync(outputText);
                         }
                     }
                 }
 
                 sw.Stop();
-                Console.WriteLine("Data Export operation time : {0}", new DateTime(sw.ElapsedTicks).ToString("HH:mm:ss.fff"));
+                Console.WriteLine($"Data Export operation time : {new DateTime(sw.ElapsedTicks).ToString("HH: mm:ss.fff")}");
             }
             catch (Exception ex)
             {
@@ -103,7 +106,7 @@ namespace AddressAnalyzer
             }
 
             return impactedEntitiesCpt;
-        }      
+        }
 
         public async Task<uint> RetrieveImpactedAccounts()
         {
@@ -111,7 +114,7 @@ namespace AddressAnalyzer
             var getContactCountTasks = new List<Task<uint>>();
 
             _partyContactSrc = new ContactPartySource();
-            _roleContactSrc = new ContactRoleSource();            
+            _roleContactSrc = new ContactRoleSource();
 
             _swGlobal.Start();
             _dcrmConnector.Connect();
@@ -121,7 +124,7 @@ namespace AddressAnalyzer
 
             // Getting the role attached contacts task
             var contactsFromRoleCpt = _roleContactSrc.GetContactsCountAsync(_roleContactSrc, _dcrmConnector.SrvContext, SOURCE_ROLE);
-            
+
             // Adding the task to task's list
             getContactCountTasks.Add(contactsFromPartyCpt);
             getContactCountTasks.Add(contactsFromRoleCpt);

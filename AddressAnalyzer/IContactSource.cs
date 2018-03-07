@@ -12,7 +12,5 @@ namespace AddressAnalyzer
         IQueryable GetContactsQuery(ServiceContext ctx);
         Dictionary<string, ContactObject> GetDictionary();
         void UpdateDictionary(string accountId, string Address, DateTime modifiedOn);
-
-   
     }
 }
