@@ -14,11 +14,18 @@ namespace AddressAnalyzer
         // We are creating an async main method based on Nito.AsyncEx
         static async void MainAsync(string[] args)
         {
+            var partyGuid = args.Length == 1 ? args[0] : null;
+
             var addressAnalyzer = new AddressAnalyzer();
 
             try
             {
-                var cptDicrepencies = await addressAnalyzer.RetrieveImpactedAccounts();
+                if (partyGuid != null)
+                {
+                    Console.WriteLine($"The application was launched in DEBUG mode : {partyGuid}");
+                }
+
+                var cptDicrepencies = await addressAnalyzer.RetrieveImpactedAccounts(partyGuid);
 
                 if (cptDicrepencies > 0)
                     Console.WriteLine($"Count of discrepencies found : {cptDicrepencies}");
@@ -32,16 +39,14 @@ namespace AddressAnalyzer
                 Console.WriteLine($"Code: {ex.Detail.ErrorCode}");
                 Console.WriteLine($"Message: {ex.Detail.Message}");
                 Console.WriteLine($"Plugin Trace: {ex.Detail.TraceText}");
-                Console.WriteLine("Inner Fault: {0}",
-                    null == ex.Detail.InnerFault ? "No Inner Fault" : "Has Inner Fault");
+                Console.WriteLine($"Inner Fault: { ex.InnerException.Message ?? "No Inner Fault"}");
             }
             catch (System.TimeoutException ex)
             {
                 Console.WriteLine("The application terminated with an error.");
                 Console.WriteLine($"Message: {ex.Message}");
                 Console.WriteLine($"Stack Trace: {ex.StackTrace}");
-                Console.WriteLine("Inner Fault: {0}",
-                    null == ex.InnerException.Message ? "No Inner Fault" : ex.InnerException.Message);
+                Console.WriteLine($"Inner Fault: { ex.InnerException.Message ?? "No Inner Fault"}");
             }
             catch (System.Exception ex)
             {
@@ -53,9 +58,7 @@ namespace AddressAnalyzer
                 {
                     Console.WriteLine(ex.InnerException.Message);
 
-                    FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault> fe = ex.InnerException
-                        as FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault>;
-                    if (fe != null)
+                    if (ex.InnerException is FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault> fe)
                     {
                         Console.WriteLine($"Timestamp: {fe.Detail.Timestamp}");
                         Console.WriteLine($"Code: {fe.Detail.ErrorCode}");

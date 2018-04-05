@@ -9,13 +9,13 @@ namespace AddressAnalyzer
     public class ContactObject
     {
         public string AccountId { get; set; }
-        public string Address { get; set; }
+        public string HashedAddress { get; set; }
         public DateTime ModifiedOn { get; set; }
 
         public ContactObject(string accountId, string hashedAddress, DateTime modifiedOn)
         {
             AccountId = accountId;
-            Address = ContactMapper.GetMd5Hash(hashedAddress);
+            HashedAddress = hashedAddress;
             ModifiedOn = modifiedOn;
         }
     }

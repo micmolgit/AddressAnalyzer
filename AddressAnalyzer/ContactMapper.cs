@@ -6,15 +6,31 @@ namespace AddressAnalyzer
 {
     public class ContactMapper
     {
-        private ContactObject contactObject { get; set; }
+        #region Properties
+        private ContactObject _contactObject { get; set; }
         private static readonly MD5 _md5Hash = MD5.Create();
         private IContactSource _contactSrc;
+        #endregion Properties
 
-        public ContactMapper(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn)
+        #region ContactMapper
+        public ContactMapper(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn, bool isDebugMode)
         {
             _contactSrc = contactSrc;
-            BuildHashMap(accountId, inputAddress, modifiedOn);
+            var trimmedAddress = inputAddress.ToString().Replace(" ", "").ToLower();
+            var hashedAddress = BuildHashMap(accountId, trimmedAddress, modifiedOn);
+
+            // DEBUG : QCOREKA-2008
+            if (isDebugMode)
+            {
+                Console.WriteLine($"===\nSource type : {contactSrc.GetType()}:\n" +
+                    $"inputAddress : [{inputAddress}]\n" +
+                    $"modifiedOn : {modifiedOn}");
+            }
+            // DEBUG : QCOREKA-2008
         }
+        #endregion // ContactMapper
+
+        #region GetMd5Hash
         public static string GetMd5Hash(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -37,22 +53,21 @@ namespace AddressAnalyzer
             // Return the hexadecimal string.
             return sBuilder.ToString();
         }
+        #endregion //GetMd5Hash
 
-        private void BuildHashMap(string accountId, string inputAddress, DateTime modifiedOn)
+        #region BuildHashMap
+        private string BuildHashMap(string accountId, string inputAddress, DateTime modifiedOn)
         {
+            string hashedAddress = null;
             try
             {
-                // making sure the input address is not null or empty
-                var address = string.IsNullOrEmpty(inputAddress) ? "#" : inputAddress;
-
                 // computing an hash from the address provided
-                var hashedAddress = GetMd5Hash(address.ToString().Replace(" ", "").ToLower());
-
+                hashedAddress = GetMd5Hash(inputAddress);
                 if (!_contactSrc.GetDictionary().ContainsKey(accountId))
                 {
-                    // the accountId is not alraedy known, we're adding a new contact entry to the dictionary
-                    contactObject = new ContactObject(accountId, hashedAddress, modifiedOn);
-                    _contactSrc.GetDictionary().Add(accountId, contactObject);
+                    // the accountId is not already known, we're adding a new contact entry to the dictionary
+                    _contactObject = new ContactObject(accountId, hashedAddress, modifiedOn);
+                    _contactSrc.GetDictionary().Add(accountId, _contactObject);
                 }
                 else
                 {
@@ -63,10 +78,13 @@ namespace AddressAnalyzer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("BuildHashMap() : Add/Modify entry to Hashmap error {0} : {1}",
-                   ex.Message,
-                ex.InnerException != null ? ex.InnerException.Message : "");
+                var innerExMsg = ex.InnerException != null ? ex.InnerException.Message : "";
+                Console.WriteLine($"BuildHashMap() : Add/Modify entry to Hashmap error {ex.Message} : {innerExMsg}");
             }
+
+            return hashedAddress;
         }
+
+        #endregion // BuildHashMap
     }
 }

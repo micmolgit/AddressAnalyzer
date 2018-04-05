@@ -8,21 +8,27 @@ namespace AddressAnalyzer
 {
     class AddressAnalyzer
     {
+        #region Properties
         private readonly DcrmConnector _dcrmConnector = new DcrmConnector();
         private readonly Stopwatch _swGlobal = new Stopwatch();
         private StreamWriter _streamWriter = null;
-        private ContactPartySource _partyContactSrc = new ContactPartySource();
-        private ContactRoleSource _roleContactSrc = new ContactRoleSource();
+        private IContactSource _partyContactSrc = null;
+        private IContactSource _roleContactSrc = null;
 
+        // static members
         private static string OUTPUT_CSV_FILENAME = "ImpactedAccountsExport.csv";
         private static string SOURCE_PARTY = "Party";
         private static string SOURCE_ROLE = "Role";
+        #endregion Properties
 
+        #region AddressAnalyzer
         public AddressAnalyzer()
         {
             _dcrmConnector = new DcrmConnector();
         }
+        #endregion //AddressAnalyzer
 
+        #region Terminate
         public void Terminate()
         {
             if (_dcrmConnector != null)
@@ -31,7 +37,9 @@ namespace AddressAnalyzer
             Console.WriteLine("Press <Enter> to exit.");
             Console.ReadLine();
         }
+        #endregion //Terminate
 
+        #region WriteCvsLineAsync
         async Task<bool> WriteCvsLineAsync(string outputText)
         {
             bool bSuccess = false;
@@ -55,7 +63,48 @@ namespace AddressAnalyzer
 
             return bSuccess;
         }
+        #endregion //WriteCvsLineAsync
 
+        #region RetrieveImpactedAccounts
+        public async Task<uint> RetrieveImpactedAccounts(string partyGuid = null)
+        {
+            uint cptDicrepencies = 0;
+            var getContactCountTasks = new List<Task<uint>>();
+
+            _partyContactSrc = new ContactPartySource();
+            _roleContactSrc = new ContactRoleSource();
+
+            var partyContactSrc = (ContactPartySource)_partyContactSrc;
+            var roleContactSrc = (ContactRoleSource)_roleContactSrc;
+
+            _swGlobal.Start();
+            _dcrmConnector.Connect();
+
+            // Getting the account attached contacts task
+            var contactsFromPartyCpt = partyContactSrc.GetContactsCountAsync(_partyContactSrc, _dcrmConnector.SrvContext, SOURCE_PARTY, partyGuid);
+
+            // Getting the role attached contacts task
+            var contactsFromRoleCpt = roleContactSrc.GetContactsCountAsync(_roleContactSrc, _dcrmConnector.SrvContext, SOURCE_ROLE, partyGuid);
+
+            // Adding the task to task's list
+            getContactCountTasks.Add(contactsFromPartyCpt);
+            getContactCountTasks.Add(contactsFromRoleCpt);
+
+            // We need to wait for all the data collection tasks to be completed before processing the data
+            await System.Threading.Tasks.Task.WhenAll(getContactCountTasks);
+
+            if (contactsFromPartyCpt.Status == TaskStatus.RanToCompletion && contactsFromRoleCpt.Status == TaskStatus.RanToCompletion)
+            {
+                cptDicrepencies = await ProcessImpactedAccounts();
+                _swGlobal.Stop();
+                Console.WriteLine($"Total execution time  : {new DateTime(ticks: _swGlobal.ElapsedTicks).ToString("HH: mm:ss.fff")}");
+            }
+
+            return cptDicrepencies;
+        }
+        #endregion //RetrieveImpactedAccounts
+
+        #region ProcessImpactedAccounts
         public async Task<uint> ProcessImpactedAccounts()
         {
             uint impactedEntitiesCpt = 0;
@@ -86,7 +135,7 @@ namespace AddressAnalyzer
                         var roleContactEntry = roleContractDict[partyContactEntry.AccountId];
 
                         // we are interesed in the address differences
-                        if (roleContactEntry != null && roleContactEntry.Address != partyContactEntry.Address)
+                        if (roleContactEntry != null && roleContactEntry.HashedAddress != partyContactEntry.HashedAddress)
                         {
                             impactedEntitiesCpt++;
                             outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")}");
@@ -107,43 +156,7 @@ namespace AddressAnalyzer
 
             return impactedEntitiesCpt;
         }
-
-        public async Task<uint> RetrieveImpactedAccounts()
-        {
-            uint cptDicrepencies = 0;
-            var getContactCountTasks = new List<Task<uint>>();
-
-            _partyContactSrc = new ContactPartySource();
-            _roleContactSrc = new ContactRoleSource();
-
-            _swGlobal.Start();
-            _dcrmConnector.Connect();
-
-            // Getting the account attached contacts task
-            var contactsFromPartyCpt = _partyContactSrc.GetContactsCountAsync(_partyContactSrc, _dcrmConnector.SrvContext, SOURCE_PARTY);
-
-            // Getting the role attached contacts task
-            var contactsFromRoleCpt = _roleContactSrc.GetContactsCountAsync(_roleContactSrc, _dcrmConnector.SrvContext, SOURCE_ROLE);
-
-            // Adding the task to task's list
-            getContactCountTasks.Add(contactsFromPartyCpt);
-            getContactCountTasks.Add(contactsFromRoleCpt);
-
-            Console.WriteLine("Data collection operation ongoing, please wait...\n");
-
-            // We need to wait for all the data collection tasks to be completed before processing the data
-            await System.Threading.Tasks.Task.WhenAll(getContactCountTasks);
-
-            if (contactsFromPartyCpt.Status == TaskStatus.RanToCompletion && contactsFromRoleCpt.Status == TaskStatus.RanToCompletion)
-            {
-                cptDicrepencies = await ProcessImpactedAccounts();
-                _swGlobal.Stop();
-                Console.WriteLine($"Total execution time  : {new DateTime(_swGlobal.ElapsedTicks).ToString("HH: mm:ss.fff")}");
-            }
-
-            return cptDicrepencies;
-        }
+        #endregion //ProcessImpactedAccounts
     }
-
 }
 
