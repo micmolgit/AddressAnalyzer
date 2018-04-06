@@ -11,6 +11,7 @@ namespace AddressAnalyzer
             AsyncContext.Run(() => MainAsync(args));
         }
 
+        #region MainAsync
         // We are creating an async main method based on Nito.AsyncEx
         static async void MainAsync(string[] args)
         {
@@ -74,5 +75,6 @@ namespace AddressAnalyzer
                 addressAnalyzer.Terminate();
             }
         }
+        #endregion //MainAsync
     }
 }

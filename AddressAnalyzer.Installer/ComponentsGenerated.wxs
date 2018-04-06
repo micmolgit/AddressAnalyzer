@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmp816FC9CB350E2B4E1E70E15B9561C4DD" Guid="{44284D94-0A2B-4320-952D-D94C31763031}">
+                <File Id="filFBBD2CA1CECEA45C89B247FF4ED87D69" KeyPath="yes" Source="$(var.BasePath)\AddressAnalyzer.exe" />
+            </Component>
+            <Component Id="cmpB785458536E0E6CE1090EE9F4DCECA75" Guid="{56CE6E17-0440-40F7-9C62-151757C0F5E1}">
+                <File Id="fil907B3812EE342970A63FDA3AC2846CBB" KeyPath="yes" Source="$(var.BasePath)\AddressAnalyzer.pdb" />
+            </Component>
+            <Component Id="cmpA446AF8E47E174A459DCB8F054E69924" Guid="{E4E4DF8E-C262-45BF-BDE3-027EFCF2E67C}">
+                <File Id="fil79D4CA6BFB2C2DEF868B84C5B08409F3" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Crm.Sdk.Proxy.dll" />
+            </Component>
+            <Component Id="cmp8D70D98B32C8F908DD58C5F06708F289" Guid="{C3E027CF-2CBE-4CE9-951C-D8B571576F14}">
+                <File Id="fil65C3764DFEF4B816AA91E646D63059C1" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Threading.Tasks.dll" />
+            </Component>
+            <Component Id="cmp1DFBDA5C3F28C07C3DEBDDBAE7F78802" Guid="{AB5D3ACC-A596-450D-A290-3041440C51CB}">
+                <File Id="fil88E67E79EF1C4E174E3CA55C79D438EF" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Threading.Tasks.Extensions.Desktop.dll" />
+            </Component>
+            <Component Id="cmp2BD2CA101B27AF1371B06F4F15D95F9B" Guid="{9B5693E8-CFA3-468A-9E0A-5166EC5F58C8}">
+                <File Id="fil477B767EE43BD465EE01C8F343860270" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Threading.Tasks.Extensions.dll" />
+            </Component>
+            <Component Id="cmp67E65E2B67A367FACFDC13B3845494ED" Guid="{01D227E8-5CC8-486D-9A1A-1DB15F1CF541}">
+                <File Id="filB33A9006A4BD6B4E952B54B5229B172C" KeyPath="yes" Source="$(var.BasePath)\Microsoft.Xrm.Sdk.dll" />
+            </Component>
+            <Component Id="cmpFB3187AEB0ABE44A5275235FC44713AF" Guid="{D4F6AE4B-1B71-46E1-B428-B1FBA7DE14B5}">
+                <File Id="filD41DFC9E6644B2345E54C2167D8FEAEA" KeyPath="yes" Source="$(var.BasePath)\Nito.AsyncEx.Concurrent.dll" />
+            </Component>
+            <Component Id="cmpC7B18FE4579BA5B84EA0DA057622D478" Guid="{4D4608C9-DFBE-44F0-9647-6DDA18EFC25C}">
+                <File Id="filC4C3CE93112A5A69B2BF571E224E4C61" KeyPath="yes" Source="$(var.BasePath)\Nito.AsyncEx.dll" />
+            </Component>
+            <Component Id="cmp8F0ABC6A41DD89D6ABA50495ACCF772B" Guid="{6E8E8C25-B28E-492B-8D32-C434D781B97F}">
+                <File Id="fil584ACC6B2D9300E5138C0D80C1B82EBE" KeyPath="yes" Source="$(var.BasePath)\Nito.AsyncEx.Enlightenment.dll" />
+            </Component>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="PublishedComponents">
+            <ComponentRef Id="cmp816FC9CB350E2B4E1E70E15B9561C4DD" />
+            <ComponentRef Id="cmpB785458536E0E6CE1090EE9F4DCECA75" />
+            <ComponentRef Id="cmpA446AF8E47E174A459DCB8F054E69924" />
+            <ComponentRef Id="cmp8D70D98B32C8F908DD58C5F06708F289" />
+            <ComponentRef Id="cmp1DFBDA5C3F28C07C3DEBDDBAE7F78802" />
+            <ComponentRef Id="cmp2BD2CA101B27AF1371B06F4F15D95F9B" />
+            <ComponentRef Id="cmp67E65E2B67A367FACFDC13B3845494ED" />
+            <ComponentRef Id="cmpFB3187AEB0ABE44A5275235FC44713AF" />
+            <ComponentRef Id="cmpC7B18FE4579BA5B84EA0DA057622D478" />
+            <ComponentRef Id="cmp8F0ABC6A41DD89D6ABA50495ACCF772B" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>
