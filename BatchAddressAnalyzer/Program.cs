@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ServiceModel;
 using Nito.AsyncEx;
+using Microsoft.Extensions.Configuration;
+using System.IO;
 
-namespace AddressAnalyzer
+namespace BatchAddressAnalyzer
 {
     class Program
     {
@@ -11,13 +13,40 @@ namespace AddressAnalyzer
             AsyncContext.Run(() => MainAsync(args));
         }
 
+        static private IConfigurationRoot  GetConfiguration()
+        {
+            var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json");
+
+            var configuration = builder.Build();
+
+            return configuration;
+        }
+
         #region MainAsync
         // We are creating an async main method based on Nito.AsyncEx
         static async void MainAsync(string[] args)
         {
             var partyGuid = args.Length == 1 ? args[0] : null;
+            var configuration = GetConfiguration();
+            var OutputDir = configuration["OutputDir"];
+            var OutputFile = configuration["OutputFile"];
+            var OutputPath = string.Format($@"{OutputDir}\{OutputFile}");
+            var BatchAddressAnalyzer = new BatchAddressAnalyzer();
 
-            var addressAnalyzer = new AddressAnalyzer();
+            try
+            {
+                Console.WriteLine($"CSV export files location (from appsettings.json) :\n=> {OutputPath}\n");
+                if (!Directory.Exists(OutputDir))
+                    Directory.CreateDirectory(OutputDir);
+                File.Create(OutputPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"CVS export files could not be created : {ex.Message}");
+                return;
+            }
 
             try
             {
@@ -26,12 +55,12 @@ namespace AddressAnalyzer
                     Console.WriteLine($"The application was launched in DEBUG mode : {partyGuid}");
                 }
 
-                var cptDicrepencies = await addressAnalyzer.RetrieveImpactedAccounts(partyGuid);
+                var cptDicrepencies = await BatchAddressAnalyzer.RetrieveImpactedAccounts(OutputPath, partyGuid);
 
                 if (cptDicrepencies > 0)
-                    Console.WriteLine($"Count of discrepencies found : {cptDicrepencies}");
+                    Console.WriteLine($"Count of found discrepencies : {cptDicrepencies}");
                 else
-                    Console.WriteLine("No where discrepencies found");
+                    Console.WriteLine("No discrepencie was found");
             }
             catch (FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault> ex)
             {
@@ -72,7 +101,7 @@ namespace AddressAnalyzer
             }
             finally
             {
-                addressAnalyzer.Terminate();
+                BatchAddressAnalyzer.Terminate();
             }
         }
         #endregion //MainAsync

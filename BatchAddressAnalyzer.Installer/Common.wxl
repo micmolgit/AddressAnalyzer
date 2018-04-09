@@ -5,15 +5,15 @@
 
   <String Id="ProductNameFolder">OREKA</String>
 
-  <String Id="ProductName_x86">AddressAnalyzer (32bit)</String>
-  <String Id="ProductName_x64">AddressAnalyzer (64bit)</String>
+  <String Id="ProductName_x86">BatchAddressAnalyzer (32bit)</String>
+  <String Id="ProductName_x64">BatchAddressAnalyzer (64bit)</String>
 
-  <String Id="Description">OREKA - AddressAnalyzer</String>
+  <String Id="Description">OREKA - BatchAddressAnalyzer</String>
 
   <String Id="Comments">Analyze Dynamics CRM contact address mismatch issue</String>
   <String Id="Keywords">dotnet,core,application,installer</String>
 
-  <String Id="DowngradeErrorMessage">A newer version of [AddressAnalyzer] is already installed.</String>
+  <String Id="DowngradeErrorMessage">A newer version of [BatchAddressAnalyzer] is already installed.</String>
 
   <String Id="Language">1033</String>
 

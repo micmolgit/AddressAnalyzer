@@ -40,7 +40,7 @@
       />
 
     <!-- Define main app icon -->
-    <Icon Id="icon.ico" SourceFile="$(var.AddressAnalyzer.ProjectDir)\Exelcia-IT.ico" />
+    <Icon Id="icon.ico" SourceFile="$(var.BatchAddressAnalyzer.ProjectDir)\Exelcia-IT.ico" />
 
     <!-- Use the icon.ico icon for this installer (shows up in Add/Remove programs) -->
     <Property Id="ARPPRODUCTICON">icon.ico</Property>
@@ -48,7 +48,15 @@
     <Property Id="ARPURLINFOABOUT">http://reunion.orange.fr/</Property>
 
     <!-- Create a basic UI for the installer -->
-    <UIRef Id="WixUI_Minimal" />
+
+    <UI Id='Mondo'>
+      <UIRef Id="WixUI_Mondo" />
+      <UIRef Id="WixUI_ErrorProgressText" />
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="SetupTypeDlg"  Order="3">1</Publish>
+      <!-- skip the page on the way back too -->
+      <Publish Dialog="SetupTypeDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg"  Order="3">1</Publish>
+    </UI>
+
 
     <!-- Change the installer UI background images -->
     <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\Assets\License.rtf" />

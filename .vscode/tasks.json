@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/AddressAnalyzer/AddressAnalyzer.csproj"
+                "${workspaceFolder}/BatchBatchAddressAnalyzer/BatchBatchAddressAnalyzer.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

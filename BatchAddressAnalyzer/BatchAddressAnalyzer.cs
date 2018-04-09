@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
 
-namespace AddressAnalyzer
+namespace BatchAddressAnalyzer
 {
-    class AddressAnalyzer
+    class BatchAddressAnalyzer
     {
         #region Properties
         private readonly DcrmConnector _dcrmConnector = new DcrmConnector();
@@ -16,17 +16,16 @@ namespace AddressAnalyzer
         private IContactSource _roleContactSrc = null;
 
         // static members
-        private static string OUTPUT_CSV_FILENAME = "ImpactedAccountsExport.csv";
         private static string SOURCE_PARTY = "Party";
         private static string SOURCE_ROLE = "Role";
         #endregion Properties
 
-        #region AddressAnalyzer
-        public AddressAnalyzer()
+        #region BatchAddressAnalyzer
+        public BatchAddressAnalyzer()
         {
             _dcrmConnector = new DcrmConnector();
         }
-        #endregion //AddressAnalyzer
+        #endregion //BatchAddressAnalyzer
 
         #region Terminate
         public void Terminate()
@@ -40,7 +39,7 @@ namespace AddressAnalyzer
         #endregion //Terminate
 
         #region WriteCvsLineAsync
-        async Task<bool> WriteCvsLineAsync(string outputText)
+        async Task<bool> WriteCvsLineAsync(string CsvOutputFilename, string outputText)
         {
             bool bSuccess = false;
 
@@ -48,8 +47,9 @@ namespace AddressAnalyzer
             {
                 if (_streamWriter == null)
                 {
-                    Console.WriteLine($"Exporting the impacted parties to : {OUTPUT_CSV_FILENAME} ...");
-                    _streamWriter = new StreamWriter(OUTPUT_CSV_FILENAME);
+                    Console.WriteLine($"Exporting the impacted parties to : {CsvOutputFilename} ...");
+                    _streamWriter = new StreamWriter(CsvOutputFilename);
+                    _streamWriter.AutoFlush = true;
                 }
                 await _streamWriter.WriteLineAsync(outputText);
                 bSuccess = true;
@@ -66,13 +66,19 @@ namespace AddressAnalyzer
         #endregion //WriteCvsLineAsync
 
         #region RetrieveImpactedAccounts
-        public async Task<uint> RetrieveImpactedAccounts(string partyGuid = null)
+        public async Task<uint> RetrieveImpactedAccounts(string OutputPath, string partyGuid = null)
         {
             uint cptDicrepencies = 0;
             var getContactCountTasks = new List<Task<uint>>();
 
             _partyContactSrc = new ContactPartySource();
             _roleContactSrc = new ContactRoleSource();
+
+            if (_partyContactSrc == null || _roleContactSrc == null)
+            {
+                Console.WriteLine("RetrieveImpactedAccounts() : Could not properly setup the Contact sources.");
+                return cptDicrepencies;
+            }
 
             var partyContactSrc = (ContactPartySource)_partyContactSrc;
             var roleContactSrc = (ContactRoleSource)_roleContactSrc;
@@ -95,7 +101,7 @@ namespace AddressAnalyzer
 
             if (contactsFromPartyCpt.Status == TaskStatus.RanToCompletion && contactsFromRoleCpt.Status == TaskStatus.RanToCompletion)
             {
-                cptDicrepencies = await ProcessImpactedAccounts();
+                cptDicrepencies = await ProcessImpactedAccounts(OutputPath);
                 _swGlobal.Stop();
                 Console.WriteLine($"Total execution time  : {new DateTime(ticks: _swGlobal.ElapsedTicks).ToString("HH: mm:ss.fff")}");
             }
@@ -105,7 +111,7 @@ namespace AddressAnalyzer
         #endregion //RetrieveImpactedAccounts
 
         #region ProcessImpactedAccounts
-        public async Task<uint> ProcessImpactedAccounts()
+        public async Task<uint> ProcessImpactedAccounts(string OutputPath)
         {
             uint impactedEntitiesCpt = 0;
 
@@ -117,9 +123,10 @@ namespace AddressAnalyzer
                 // Creating Export file with CVS Header [GUID | MODIFIED ON]
                 var colomn1 = "Account GUID";
                 var colomn2 = "ModifiedOn(from contact)";
+                var colomn3 = "IsAddressEmpty";
 
-                var outputText = String.Format($"{colomn1};{colomn2}");
-                await WriteCvsLineAsync(outputText);
+                var outputText = String.Format($"{colomn1};{colomn2};{colomn3}");
+                await WriteCvsLineAsync(OutputPath, outputText);
 
                 // getting a reference to the account based contact dictionnary
                 var partyContractDict = _partyContactSrc.GetDictionary();
@@ -138,8 +145,8 @@ namespace AddressAnalyzer
                         if (roleContactEntry != null && roleContactEntry.HashedAddress != partyContactEntry.HashedAddress)
                         {
                             impactedEntitiesCpt++;
-                            outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")}");
-                            await WriteCvsLineAsync(outputText);
+                            outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")};{roleContactEntry.IsFromEmptyAddress}");
+                            await WriteCvsLineAsync(OutputPath, outputText);
                         }
                     }
                 }
@@ -152,6 +159,11 @@ namespace AddressAnalyzer
                 Console.WriteLine("[ProcessImpactedAccounts] : {0} {1}",
                    ex.Message,
                     ex.InnerException != null ? ex.InnerException.Message : "");
+            }
+            finally
+            {
+                if (_streamWriter != null)
+                    _streamWriter.Close();
             }
 
             return impactedEntitiesCpt;

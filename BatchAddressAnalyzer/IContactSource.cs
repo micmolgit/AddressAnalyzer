@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
-namespace AddressAnalyzer
+namespace BatchAddressAnalyzer
 {
     public interface IContactSource
     {
         IQueryable GetContactsQuery(ServiceContext ctx, string partyGuid = null);
         Dictionary<string, ContactObject> GetDictionary();
-        void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn);
+        void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn, bool isFromEmptyAddress);
     }
 }

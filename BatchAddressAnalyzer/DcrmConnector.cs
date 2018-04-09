@@ -8,7 +8,7 @@ using Microsoft.Crm.Sdk.ServiceHelper;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 
-namespace AddressAnalyzer
+namespace BatchAddressAnalyzer
 {
     class DcrmConnector
     {
@@ -51,7 +51,7 @@ namespace AddressAnalyzer
                 throw new InvalidOperationException("Authentication could not be completed");
             }
 
-            Console.WriteLine($"Successfully connected to : {_serverConfig.OrganizationUri}");
+            Console.WriteLine($"Successfully connected to :\n=> {_serverConfig.OrganizationUri}\n");
         }
 
        public void Disconnect()

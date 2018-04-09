@@ -13,14 +13,14 @@
 
     <!-- Installed files -->
     <DirectoryRef Id="INSTALLFOLDER"
-                  FileSource="..\AddressAnalyzer\bin\Debug\net452\win-$(var.Platform)\publish\">
+                  FileSource="..\BatchAddressAnalyzer\bin\Debug\net461\win-$(var.Platform)\publish\">
 
       <!-- Shortcut to main application -->
       <Component Id="MainAppShortcut" Guid="{2EDB679E-CAAE-4E83-B46A-F726D627F61D}">
 
         <Shortcut Id="MainAppShortcut"
                   Name="!(loc.ProductName_$(var.Platform))"
-                  Target="[INSTALLFOLDER]AddressAnalyzer.exe"
+                  Target="[INSTALLFOLDER]BatchAddressAnalyzer.exe"
                   Directory="InstallProgramMenuFolder"
                   WorkingDirectory="INSTALLFOLDER"
                   Icon="icon.ico"

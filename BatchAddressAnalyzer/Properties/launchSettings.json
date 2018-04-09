@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BatchAddressAnalyzer": {
+      "commandName": "Project",
+      "commandLineArgs": "58e8d395-aeb9-e611-80fc-005056a2d11d"
+    }
+  }
+}
