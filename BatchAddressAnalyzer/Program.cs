@@ -8,11 +8,14 @@ namespace BatchAddressAnalyzer
 {
     class Program
     {
+        #region Main
         static public void Main(string[] args)
         {
             AsyncContext.Run(() => MainAsync(args));
         }
+        #endregion // Main
 
+        #region GetConfiguration
         static private IConfigurationRoot  GetConfiguration()
         {
             var builder = new ConfigurationBuilder()
@@ -23,6 +26,7 @@ namespace BatchAddressAnalyzer
 
             return configuration;
         }
+        #endregion // GetConfiguration
 
         #region MainAsync
         // We are creating an async main method based on Nito.AsyncEx

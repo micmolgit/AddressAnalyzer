@@ -8,7 +8,7 @@ namespace BatchAddressAnalyzer
 {
     class BatchAddressAnalyzer
     {
-        #region Properties
+        #region Fields
         private readonly DcrmConnector _dcrmConnector = new DcrmConnector();
         private readonly Stopwatch _swGlobal = new Stopwatch();
         private StreamWriter _streamWriter = null;
@@ -122,8 +122,8 @@ namespace BatchAddressAnalyzer
 
                 // Creating Export file with CVS Header [GUID | MODIFIED ON]
                 var colomn1 = "Account GUID";
-                var colomn2 = "ModifiedOn(from contact)";
-                var colomn3 = "IsAddressEmpty";
+                var colomn2 = "ModifiedOn (from role's contact)";
+                var colomn3 = "Address Count";
 
                 var outputText = String.Format($"{colomn1};{colomn2};{colomn3}");
                 await WriteCvsLineAsync(OutputPath, outputText);
@@ -145,7 +145,7 @@ namespace BatchAddressAnalyzer
                         if (roleContactEntry != null && roleContactEntry.HashedAddress != partyContactEntry.HashedAddress)
                         {
                             impactedEntitiesCpt++;
-                            outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")};{roleContactEntry.IsFromEmptyAddress}");
+                            outputText = String.Format($"{partyContactEntry.AccountId};{partyContactEntry.ModifiedOn.ToString("dd-MM-yyyy")};{roleContactEntry.Count + partyContactEntry.Count}");
                             await WriteCvsLineAsync(OutputPath, outputText);
                         }
                     }

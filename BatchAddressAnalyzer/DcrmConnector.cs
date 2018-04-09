@@ -12,11 +12,11 @@ namespace BatchAddressAnalyzer
 {
     class DcrmConnector
     {
+        #region Fields
         private ServerConnection _serverConnection;
         private ServerConnection.Configuration _serverConfig;
         private OrganizationServiceProxy _serviceProxy;
         private ServiceContext _serviceContext;
-
         public ServiceContext SrvContext
         {
             get
@@ -31,7 +31,9 @@ namespace BatchAddressAnalyzer
                 return _serviceContext;
             }
         }
+        #endregion // Fields
 
+        #region Connect
         public void Connect()
         {
             // Obtain the target organization's Web address and client logon
@@ -53,10 +55,13 @@ namespace BatchAddressAnalyzer
 
             Console.WriteLine($"Successfully connected to :\n=> {_serverConfig.OrganizationUri}\n");
         }
+        #endregion // Connect
 
-       public void Disconnect()
+        #region Disconnect
+        public void Disconnect()
         {
             _serviceProxy?.Dispose();
         }
+        #endregion // Disconnect
     }
 }

@@ -7,18 +7,18 @@ namespace BatchAddressAnalyzer
 {
     abstract class ContactSource
     {
-        #region Members
+        #region Fields
         public static readonly int CLIENT_FACTURATION_ROLE = 100000000;
         public static readonly int CANAL_COMMUNICATION_COURRIER = 100000004;
         Dictionary<string, ContactObject> ContactDictionary = new Dictionary<string, ContactObject>();
-        #endregion // Members
         public Dictionary<string, ContactObject> GetDictionary()
         {
             return ContactDictionary;
         }
+        #endregion // Fields
 
         #region UpdateDictionary
-        public void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn, bool isFromEmptyAddress)
+        public void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn)
         {
             try
             {
@@ -33,8 +33,7 @@ namespace BatchAddressAnalyzer
                 {
                     contactEntry.HashedAddress = hashedAddress;
                     contactEntry.ModifiedOn = modifiedOn;
-                    if (isFromEmptyAddress)
-                        contactEntry.IsFromEmptyAddress = isFromEmptyAddress;
+                    contactEntry.Count++;
                 }
             }
             catch (Exception Ex)

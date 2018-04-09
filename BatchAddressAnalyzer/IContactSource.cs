@@ -9,8 +9,10 @@ namespace BatchAddressAnalyzer
 {
     public interface IContactSource
     {
+        #region Methods
         IQueryable GetContactsQuery(ServiceContext ctx, string partyGuid = null);
         Dictionary<string, ContactObject> GetDictionary();
-        void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn, bool isFromEmptyAddress);
+        void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn);
+        #endregion // Fields
     }
 }

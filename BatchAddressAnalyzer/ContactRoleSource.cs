@@ -5,7 +5,11 @@ namespace BatchAddressAnalyzer
 {
     class ContactRoleSource: ContactSource, IContactSource
     {
+        #region Fields
         private ServiceContext _ctx;
+        #endregion // Fields
+
+        #region BuildContactQuery
         private IQueryable BuildContactQuery(bool isDebugMode)
         {
             try
@@ -40,7 +44,9 @@ namespace BatchAddressAnalyzer
                 return null;
             }
         }
+        #endregion BuildContactQuery
 
+        #region BuildContactQueryWithGuid
         private IQueryable BuildContactQueryWithGuid(string partyGuid, bool isDebugMode)
         {
             try
@@ -76,11 +82,14 @@ namespace BatchAddressAnalyzer
                 return null;
             }
         }
+        #endregion // BuildContactQueryWithGuid
 
+        #region GetContactsQuery
         public IQueryable GetContactsQuery(ServiceContext ctx, string partyGuid = null)
         {
             _ctx = ctx;
             return partyGuid == null ? BuildContactQuery(false) : BuildContactQueryWithGuid(partyGuid, true);
         }
+        #endregion // GetContactsQuery
     }
 }

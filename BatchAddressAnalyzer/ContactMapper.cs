@@ -22,6 +22,7 @@ namespace BatchAddressAnalyzer
         }
         #endregion // ContactMapper
 
+        #region AddAddressToDictionary
         private void AddAddressToDictionary(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn, bool isDebugMode)
         {
             // handling the null or empty addresses cases
@@ -43,6 +44,7 @@ namespace BatchAddressAnalyzer
             }
             // DEBUG : QCOREKA-2008
         }
+        #endregion // AddAddressToDictionary
 
         #region GetMd5Hash
         public static string GetMd5Hash(string input)
@@ -75,9 +77,6 @@ namespace BatchAddressAnalyzer
             string hashedAddress = null;
             try
             {
-                // tracking empty address cases
-                var isFromEmptyAddress = inputAddress == EMPTY_ADDRESS_TAG;
-
                 // computing an hash from the address provided
                 hashedAddress = GetMd5Hash(inputAddress);
 
@@ -87,13 +86,13 @@ namespace BatchAddressAnalyzer
                 if (!currentDictionary.ContainsKey(accountId))
                 {
                     // the accountId is not already known, we're adding a new contact entry to the dictionary
-                    _contactObject = new ContactObject(accountId, hashedAddress, modifiedOn, isFromEmptyAddress);
+                    _contactObject = new ContactObject(accountId, hashedAddress, modifiedOn);
                     currentDictionary.Add(accountId, _contactObject);
                 }
                 else
                 {
                     // the accountId is known, we're just updating it
-                    _contactSrc.UpdateDictionary(accountId, hashedAddress, modifiedOn, isFromEmptyAddress);
+                    _contactSrc.UpdateDictionary(accountId, hashedAddress, modifiedOn);
                 }
 
             }
