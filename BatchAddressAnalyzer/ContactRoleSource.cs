@@ -10,7 +10,7 @@ namespace BatchAddressAnalyzer
         #endregion // Fields
 
         #region BuildContactQuery
-        private IQueryable BuildContactQuery(bool isDebugMode)
+        private IQueryable BuildContactQuery()
         {
             try
             {
@@ -29,11 +29,10 @@ namespace BatchAddressAnalyzer
                             select new
                             {
                                 contactHash = new ContactMapper(
-                                    this,
+                                    (ContactRoleSource)this,
                                     ((Guid)party["accountid"]).ToString(),
                                      (string)contact["fullname"],
-                                    ((DateTime)contact["modifiedon"]),
-                                    isDebugMode)
+                                    ((DateTime)contact["modifiedon"]))
                             };
                 return query;
             }
@@ -47,7 +46,7 @@ namespace BatchAddressAnalyzer
         #endregion BuildContactQuery
 
         #region BuildContactQueryWithGuid
-        private IQueryable BuildContactQueryWithGuid(string partyGuid, bool isDebugMode)
+        private IQueryable BuildContactQueryWithGuid(string partyGuid)
         {
             try
             {
@@ -67,11 +66,10 @@ namespace BatchAddressAnalyzer
                             select new
                             {
                                 contactHash = new ContactMapper(
-                                    this,
+                                    (ContactRoleSource)this,
                                     ((Guid)party["accountid"]).ToString(),
                                     (string)contact["fullname"],
-                                    ((DateTime)contact["modifiedon"]),
-                                    isDebugMode)
+                                    ((DateTime)contact["modifiedon"]))
                             };
                 return query;
             }
@@ -88,7 +86,7 @@ namespace BatchAddressAnalyzer
         public IQueryable GetContactsQuery(ServiceContext ctx, string partyGuid = null)
         {
             _ctx = ctx;
-            return partyGuid == null ? BuildContactQuery(false) : BuildContactQueryWithGuid(partyGuid, true);
+            return partyGuid == null ? BuildContactQuery() : BuildContactQueryWithGuid(partyGuid);
         }
         #endregion // GetContactsQuery
     }

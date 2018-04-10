@@ -3,7 +3,7 @@
 
   <String Id="Company">OREKA</String>
 
-  <String Id="ProductNameFolder">OREKA</String>
+  <String Id="ProductNameFolder">BatchAddressAnalyzer</String>
 
   <String Id="ProductName_x86">BatchAddressAnalyzer (32bit)</String>
   <String Id="ProductName_x64">BatchAddressAnalyzer (64bit)</String>

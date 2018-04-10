@@ -33,18 +33,16 @@ namespace BatchAddressAnalyzer
         static async void MainAsync(string[] args)
         {
             var partyGuid = args.Length == 1 ? args[0] : null;
-            var configuration = GetConfiguration();
-            var OutputDir = configuration["OutputDir"];
-            var OutputFile = configuration["OutputFile"];
-            var OutputPath = string.Format($@"{OutputDir}\{OutputFile}");
+
             var BatchAddressAnalyzer = new BatchAddressAnalyzer();
+            LoadConfiguration();
 
             try
             {
-                Console.WriteLine($"CSV export files location (from appsettings.json) :\n=> {OutputPath}\n");
-                if (!Directory.Exists(OutputDir))
-                    Directory.CreateDirectory(OutputDir);
-                File.Create(OutputPath);
+                Console.WriteLine($"CSV export files location (from appsettings.json) :\n=> {BatchAddressAnalyzer.OutputPath}\n");
+                if (!Directory.Exists(BatchAddressAnalyzer.OutputDir))
+                    Directory.CreateDirectory(BatchAddressAnalyzer.OutputDir);
+                File.Create(BatchAddressAnalyzer.OutputPath);
             }
             catch (Exception ex)
             {
@@ -56,10 +54,10 @@ namespace BatchAddressAnalyzer
             {
                 if (partyGuid != null)
                 {
-                    Console.WriteLine($"The application was launched in DEBUG mode : {partyGuid}");
+                    Console.WriteLine($"The application is looking for : {partyGuid} related contacts");
                 }
 
-                var cptDicrepencies = await BatchAddressAnalyzer.RetrieveImpactedAccounts(OutputPath, partyGuid);
+                var cptDicrepencies = await BatchAddressAnalyzer.RetrieveImpactedAccounts(BatchAddressAnalyzer.OutputPath, partyGuid);
 
                 if (cptDicrepencies > 0)
                     Console.WriteLine($"Count of found discrepencies : {cptDicrepencies}");
@@ -109,5 +107,14 @@ namespace BatchAddressAnalyzer
             }
         }
         #endregion //MainAsync
+
+        private static void LoadConfiguration()
+        {
+            var configuration = GetConfiguration();
+            BatchAddressAnalyzer.OutputDir = configuration["OutputDir"];
+            BatchAddressAnalyzer.OutputFile = configuration["OutputFile"];
+            BatchAddressAnalyzer.OutputPath = string.Format($@"{BatchAddressAnalyzer.OutputDir}\{BatchAddressAnalyzer.OutputFile}");
+            BatchAddressAnalyzer.IsDebugMode = configuration["IsDebugMode"] == "true";
+        }
     }
 }

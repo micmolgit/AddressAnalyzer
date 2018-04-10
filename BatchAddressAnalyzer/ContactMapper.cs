@@ -7,42 +7,28 @@ namespace BatchAddressAnalyzer
     public class ContactMapper
     {
         #region Properties
-        private ContactObject _contactObject { get; set; }
         private static readonly MD5 _md5Hash = MD5.Create();
         private IContactSource _contactSrc;
-        private readonly string EMPTY_ADDRESS_TAG = "#";
-        private readonly uint MIN_ADDRESS_LENGTH = 5;
         #endregion Properties
 
         #region ContactMapper
-        public ContactMapper(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn, bool isDebugMode)
+        public ContactMapper(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn)
         {
             _contactSrc = contactSrc;
-            AddAddressToDictionary(contactSrc, accountId, inputAddress, modifiedOn, isDebugMode);
+            AddAddressToDictionary(contactSrc, accountId, inputAddress, modifiedOn);
         }
         #endregion // ContactMapper
 
         #region AddAddressToDictionary
-        private void AddAddressToDictionary(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn, bool isDebugMode)
+        private void AddAddressToDictionary(IContactSource contactSrc, string accountId, string inputAddress, DateTime modifiedOn)
         {
-            // handling the null or empty addresses cases
-            if (inputAddress.Length < MIN_ADDRESS_LENGTH)
-            {
-                Console.WriteLine($"An empty address was found for this account's contact ({contactSrc.GetType()}):\n=> {accountId}");
-            }
-
             var trimmedAddress = inputAddress.ToString().Replace(" ", "").ToLower();
-            var hashedAddress = ProcessAddressToHashmap(accountId, trimmedAddress, modifiedOn);
+            var contactEntry = ProcessAddressToHashmap(accountId, trimmedAddress, modifiedOn);
 
-            // DEBUG : QCOREKA-2008
-            if (isDebugMode)
+            if (BatchAddressAnalyzer.IsDebugMode)
             {
-                Console.WriteLine($"===\nSource type : {contactSrc.GetType()}:\n" +
-                    $"inputAddress : [{inputAddress}]\n" +
-                    $"hashedAddress : [{hashedAddress}]\n" +
-                    $"modifiedOn : {modifiedOn}");
+                BatchAddressAnalyzer.DebugMessage(String.Format($"[{contactSrc.GetType()}]\nprocessing address ({contactEntry.GetFisrtKnownAddress()}):\n[{inputAddress}]"));
             }
-            // DEBUG : QCOREKA-2008
         }
         #endregion // AddAddressToDictionary
 
@@ -72,13 +58,13 @@ namespace BatchAddressAnalyzer
         #endregion //GetMd5Hash
 
         #region ProcessAddressToHashmap
-        private string ProcessAddressToHashmap(string accountId, string inputAddress, DateTime modifiedOn)
+        private ContactObject ProcessAddressToHashmap(string accountId, string inputAddress, DateTime modifiedOn)
         {
-            string hashedAddress = null;
+            ContactObject contactEntry = null;
             try
             {
                 // computing an hash from the address provided
-                hashedAddress = GetMd5Hash(inputAddress);
+                var hashedAddress = GetMd5Hash(inputAddress);
 
                 // getting a reference to Party or Role dictionary
                 var currentDictionary = _contactSrc.GetDictionary();
@@ -86,13 +72,13 @@ namespace BatchAddressAnalyzer
                 if (!currentDictionary.ContainsKey(accountId))
                 {
                     // the accountId is not already known, we're adding a new contact entry to the dictionary
-                    _contactObject = new ContactObject(accountId, hashedAddress, modifiedOn);
-                    currentDictionary.Add(accountId, _contactObject);
+                    contactEntry = new ContactObject(accountId, hashedAddress, modifiedOn);
+                    currentDictionary.Add(accountId, contactEntry);
                 }
                 else
                 {
                     // the accountId is known, we're just updating it
-                    _contactSrc.UpdateDictionary(accountId, hashedAddress, modifiedOn);
+                    contactEntry = _contactSrc.UpdateDictionary(accountId, hashedAddress, modifiedOn);
                 }
 
             }
@@ -102,7 +88,7 @@ namespace BatchAddressAnalyzer
                 Console.WriteLine($"ProcessAddressToHashmap() : Add/Modify entry to Hashmap error {ex.Message} : {innerExMsg}");
             }
 
-            return hashedAddress;
+            return contactEntry;
         }
 
         #endregion // ProcessAddressToHashmap

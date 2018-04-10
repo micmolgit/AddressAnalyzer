@@ -18,22 +18,25 @@ namespace BatchAddressAnalyzer
         #endregion // Fields
 
         #region UpdateDictionary
-        public void UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn)
+        public ContactObject UpdateDictionary(string accountId, string hashedAddress, DateTime modifiedOn)
         {
+            ContactObject contactEntry = null;
             try
             {
                 if (!ContactDictionary.ContainsKey(accountId))
                 {
                     Console.WriteLine($"UpdateDictionary() : {accountId} entry could not be found");
-                    return;
+                    return null;
                 }
-                ContactObject contactEntry;
                 ContactDictionary.TryGetValue(accountId, out contactEntry);
                 if (contactEntry != null)
                 {
-                    contactEntry.HashedAddress = hashedAddress;
-                    contactEntry.ModifiedOn = modifiedOn;
-                    contactEntry.Count++;
+                    // The address is not matching any known address, we're adding it to the known list
+                    if (!contactEntry.DoesKnowAddress(hashedAddress))
+                    {
+                        contactEntry.AddToKnownAddress(hashedAddress);
+                        contactEntry.ModifiedOn = modifiedOn;
+                    }
                 }
             }
             catch (Exception Ex)
@@ -41,6 +44,8 @@ namespace BatchAddressAnalyzer
                 var Innermessage = Ex.InnerException != null ? Ex.InnerException.Message : "";
                 Console.WriteLine($"[UpdateDictionary] {Ex.Message}  {Innermessage}");
             }
+
+            return (contactEntry);
         }
         #endregion // UpdateDictionary
 
@@ -65,7 +70,7 @@ namespace BatchAddressAnalyzer
                 {
                     var Innermessage = Ex.InnerException != null ? Ex.InnerException.Message : "";
                     var stackTrace = Ex.StackTrace != null ? Ex.StackTrace : "";
-                    Console.WriteLine($"[GetContactsCountAsync : {cptContact}] : => \n{Ex.Message}\n=> \n{Innermessage}\n=> {stackTrace}");
+                    Console.WriteLine($"[GetContactsCountAsync : {contactSrc.GetType()} {cptContact}] : => \n{Ex.Message}\n=> \n{Innermessage}\n=> {stackTrace}");
                 }
             });
 
